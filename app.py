@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 from gui.main_window import SuperCadUi
 from controllers.controller import CadController
-from core.constraints import Calculator
+from core.constraints import Constraints
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     view.show()
 
     # Create model
-    model = Calculator()
+    model = Constraints()
 
     # Create controller
     CadController(model, view)

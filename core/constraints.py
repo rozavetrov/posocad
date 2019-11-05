@@ -1,5 +1,6 @@
-# Create a Model to handle the calculator's operation
-class Calculator:
+class Constraints:
+    """Object constraints"""
+
     def __init__(self):
         self.isResult = False
 

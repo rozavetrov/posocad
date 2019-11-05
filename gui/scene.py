@@ -1,7 +1,6 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPen, QBrush
-from PyQt5.QtCore import Qt, QRectF, QLineF
-from PyQt5.QtWidgets import QGraphicsEllipseItem, QGraphicsLineItem
+from PyQt5.QtCore import Qt, QPointF
 
 
 class GraphicsView(QtWidgets.QGraphicsView):
@@ -22,14 +21,29 @@ class GraphicsScene(QtWidgets.QGraphicsScene):
         # Set painting instrument
         self.pen = QPen(Qt.black, 3)
         self.brush = QBrush(Qt.black)
+        self.selectPen = QPen(Qt.red, 3)
 
-    def drawPoint(self, x, y):
-        """Creating point"""
-        point = QGraphicsEllipseItem(QRectF(x - 3, y - 3, 6, 6))
-        point.setPen(self.pen)
-        self.addItem(point)
+    def drawPoint(self, point):
+        """Add point to scene"""
+        p = point.getPointItem()
+        p.setPen(self.pen)
+        self.addItem(p)
 
-    def drawLine(self, point1, point2):
-        line = QGraphicsLineItem(*point1, *point2)
+    def drawLine(self, line):
+        """Add line to scene"""
+
+        line = line.getLineItem()
         line.setPen(self.pen)
         self.addItem(line)
+
+    def selectItem(self, x, y):
+        item = self.items(QPointF(x, y))[0]
+        item.setPen(self.selectPen)
+
+        return item
+
+    def unselectItem(self, item):
+        item.setPen(self.pen)
+
+    def deleteItem(self, item):
+        self.removeItem(item)
