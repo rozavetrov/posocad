@@ -62,6 +62,10 @@ class SuperCadUi(QMainWindow):
         select.setIcon(QIcon("./gui/icons/buttons/toolbar/select.svg"))
 
         # Creating constrains instruments
+        # No constraints
+        noConstraint = QToolButton()
+        noConstraint.str = "None"
+        noConstraint.setIcon(QIcon("./gui/icons/buttons/toolbar/none.svg"))
         # Parallelism
         parallelism = QToolButton()
         parallelism.str = "Parallelism"
@@ -80,39 +84,41 @@ class SuperCadUi(QMainWindow):
         spacer = QWidget()
         spacer.setFixedHeight(50)
 
+        # Adding instruments to dict
+        self.instruments.update({
+            "select": select,
+            "point": point,
+            "line": line
+        })
+        # Adding constraints to dict
+        self.constraints.update({
+            "none": noConstraint,
+            "parallelism": parallelism,
+            "perpendicularity": perpendicularity
+        })
+
         # Adding to tools bar
         # Instruments
         tools.addWidget(QLabel("Instruments"))
-        tools.addWidget(point)
-        tools.addWidget(line)
-        tools.addWidget(select)
+        for instrument in self.instruments.values():
+            tools.addWidget(instrument)
         tools.addWidget(self.instrumentLabel)
 
+        # Spacer
         tools.addWidget(spacer)
 
         # Constraints
         tools.addWidget(QLabel("Constraints"))
-        tools.addWidget(parallelism)
-        tools.addWidget(perpendicularity)
+        for constraint in self.constraints.values():
+            tools.addWidget(constraint)
         tools.addWidget(self.constraintLabel)
-
-        # Adding instruments to dict
-        self.instruments.update({
-            "point": point,
-            "line": line,
-            "select": select
-        })
-        # Adding constraints to dict
-        self.constraints.update({
-            "parallelism": parallelism,
-            "perpendicularity": perpendicularity
-        })
 
         # Adding toolbar to main window
         self.addToolBar(Qt.LeftToolBarArea, tools)
 
         # Set active instrument
-        self.setInstrument(self.instruments["point"])
+        self.setInstrument(self.instruments["select"])
+        self.setConstraint(self.constraints["none"])
 
     def setInstrument(self, instrument):
         """Set active instrument"""

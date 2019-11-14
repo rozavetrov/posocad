@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtWidgets import QMainWindow
-from core.gObjects import MyPoint, MyLine
+from core.gObjects import Point, Line, Parallelism
 
 
 class CadController(QMainWindow):
@@ -16,9 +16,6 @@ class CadController(QMainWindow):
         # Connect signals and slots
         self._connectSignals()
 
-        # Drawing flag
-        self.isDrawing = False
-
         # List of selected items
         self.selectedItems = set()
 
@@ -28,15 +25,14 @@ class CadController(QMainWindow):
     def _connectSignals(self):
         """Connect signals and slots."""
         # Choosing current instrument
-        self._view.instruments["point"].clicked.connect(lambda _: self._chooseInstrument())
-        self._view.instruments["line"].clicked.connect(lambda _: self._chooseInstrument())
-        self._view.instruments["select"].clicked.connect(lambda _: self._chooseInstrument())
+        for instrument in self._view.instruments.values():
+            instrument.clicked.connect(lambda _: self._chooseInstrument())
 
         # Choosing active constraints
-        self._view.constraints["parallelism"].clicked.connect(lambda _: self._chooseConstraint())
-        self._view.constraints["perpendicularity"].clicked.connect(lambda _: self._chooseConstraint())
+        for constraint in self._view.constraints.values():
+            constraint.clicked.connect(lambda _: self._chooseConstraint())
 
-        # Paint object: point or line
+        # Paint object
         self._view.centralWidget.scene.mousePressEvent = lambda event: self._paintObject(event)
 
         # Delete selected items
@@ -54,6 +50,7 @@ class CadController(QMainWindow):
         """Draw objects"""
         # Active instrument
         instrument = self._view.activeInstrument.str
+        constraint = self._view.activeConstraint.str
         # Mouse position
         x = event.scenePos().x()
         y = event.scenePos().y()
@@ -72,10 +69,25 @@ class CadController(QMainWindow):
             self._selectItem(x, y)
 
     def _drawPoint(self, x, y):
-        point = MyPoint(x, y)
+        point = Point(x, y)
         self.scene.drawPoint(point)
 
         return point
+
+    def _drawLine(self, event, p1):
+        x = event.scenePos().x()
+        y = event.scenePos().y()
+
+        p2 = self._drawPoint(x, y)
+
+        p3 = Point(x + 10, y + 20)
+        p4 = Point(x + 35, y + 40)
+
+        line = Line(p1, p2)
+        line2 = Line(p3, p4)
+        self.scene.drawLine(line)
+        self.scene.drawLine(line2)
+        self.scene.mousePressEvent = lambda event: self._paintObject(event)
 
     def _selectItem(self, x, y):
         try:
@@ -87,15 +99,6 @@ class CadController(QMainWindow):
                 self.selectedItems.remove(item)
         except IndexError as e:
             pass
-
-    def _drawLine(self, event, p1):
-        x = event.scenePos().x()
-        y = event.scenePos().y()
-
-        p2 = self._drawPoint(x, y)
-        line = MyLine(p1, p2)
-        self.scene.drawLine(line)
-        self.scene.mousePressEvent = lambda event: self._paintObject(event)
 
     def _deleteItems(self, event):
         if event.key() == Qt.Key_Backspace:
